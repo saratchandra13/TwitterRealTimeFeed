@@ -57,4 +57,4 @@ _**Requirement**_ : RealTime Tweets to be shown to user as a streaming API respo
       -H 'cache-control: no-cache,no-cache'
       
 ![Alt text](/Account_search.png?raw=true "Tweets On Kohli")
-![Alt text](/HashTag_search.png?raw=true "Tweets On #IndvsBan (Pink ball test match)")             
+![Alt text](/Hashtag_search.png?raw=true "Tweets On #IndvsBan (Pink ball test match)")             
