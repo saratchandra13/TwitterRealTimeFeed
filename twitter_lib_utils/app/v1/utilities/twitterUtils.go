@@ -1,12 +1,13 @@
 package utilities
 
-import(
+import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
+	"github.com/gin-gonic/gin"
 	"log"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -59,18 +60,19 @@ func (twitterSearchUtilsVariable TwitterSearchUtils) GetTweetsFromTwitter(contex
 		}
 	}()
 
+
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
 		TweetChannel <- models.TweetModel{TweetText:tweet.Text,Sender:tweet.User.Name,RetweetedCount:tweet.RetweetCount,ReplyCount:tweet.ReplyCount,CreatedAt:tweet.CreatedAt}
 	}
 
 	// FILTER
-	filterParams := &twitter.StreamUserParams{
-		Track:         []string{AccountName},
+	filterParams := &twitter.StreamFilterParams{
+		Track:         []string{url.QueryEscape(AccountName)},
 		StallWarnings: twitter.Bool(true),
 	}
 
-	if UserStream, err := TwitterClient.Streams.User(filterParams);err!=nil{
+	if UserStream, err := TwitterClient.Streams.Filter(filterParams);err!=nil{
 		TweetChannel <- models.TweetModel{ErrorString:errors.New("fatal error while creating a stream")}
 		close(TweetChannel)
 		return
@@ -89,5 +91,5 @@ func (twitterSearchUtilsVariable TwitterSearchUtils) GetTweetsFromTwitter(contex
 
 func (twitterSearchUtilsVariable TwitterSearchUtils)  ListenForOsSignalsForExit(ch chan os.Signal) {
 	// Wait for SIGINT and SIGTERM (HIT CTRL-C)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM,syscall.SIGKILL)
 }

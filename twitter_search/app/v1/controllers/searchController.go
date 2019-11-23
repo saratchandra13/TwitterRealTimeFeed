@@ -26,29 +26,42 @@ func GetTwitterTweetsStream(context *gin.Context){
 		}
 	}()
 
-	Flusher, FlusherFlag := context.Writer.(http.Flusher)
-
 	SearchWord := context.Query("source")
+	fmt.Println(SearchWord)
 
 	if !strings.HasPrefix(SearchWord,Hastag) && !strings.HasPrefix(SearchWord,AccountTag){
+		fmt.Println("here",SearchWord)
 		context.JSON(400,BadInputError)
 		return
 	}else{
-		var TwitterViews views.RealTimeTweets
-		TweetsChannel := make(chan models.SearchResponse)
+		// http flusher.
+		Flusher, FlusherFlag := context.Writer.(http.Flusher)
 
-		TwitterViews.GetRealTimeTweets(context,TwitterViews,SearchWord,TweetsChannel)
+		var TwitterViews views.RealTimeTweets
+		TweetsChannel := make(chan models.SearchResponse,10)
+
+		_,_ = fmt.Fprintln(context.Writer, fmt.Sprint("Starting Stream of tweets for the search word ",SearchWord))
+		if FlusherFlag{
+			Flusher.Flush()
+		}
+
+		go TwitterViews.GetRealTimeTweets(context,TwitterViews,SearchWord,TweetsChannel)
 
 		for {
 			if Tweet,ok := <-TweetsChannel;ok{
 				MarshalledResponse,_ := json.Marshal(Tweet)
 				_,_ = fmt.Fprintln(context.Writer, string(MarshalledResponse))
+				if FlusherFlag{
+					Flusher.Flush()
+				}
 			}else{
-				_ , _ = fmt.Fprintln(context.Writer,string("Sorry End of Stream."))
+				_ , _ = fmt.Fprintln(context.Writer,string("Sorry End of Stream! Got a Signal from master to QUIT."))
+				if FlusherFlag{
+					Flusher.Flush()
+					break
+				}
 			}
-			if FlusherFlag{
-				Flusher.Flush()
-			}
+
 		}
 
 	}

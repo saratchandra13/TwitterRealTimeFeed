@@ -34,15 +34,14 @@ func (SearchViewsVariable RealTimeTweets) GetRealTimeTweets(context *gin.Context
 	}()
 
 	var TwitterUtils utilities.TwitterSearchUtils
-	TweetChannel := make(chan TwitterModel.TweetModel)
+	TweetChannel := make(chan TwitterModel.TweetModel,10)
 
 	go TwitterUtils.GetTweetsFromTwitter(context,TwitterUtils,SearchWord,TweetChannel)
 
 	for {
 		if Tweet, ok := <-TweetChannel; ok {
-			ResponseChannel <- models.SearchResponse{Sender: Tweet.Sender, SearchWord: SearchWord, Tweet: Tweet.TweetText, TweetTime: Tweet.CreatedAt}
+			ResponseChannel <- models.SearchResponse{Sender: Tweet.Sender, SearchWord: SearchWord, Tweet: Tweet.TweetText, TweetTime: Tweet.CreatedAt,Error:Tweet.ErrorString,RetweetCount:Tweet.RetweetedCount,ReplyCount:Tweet.ReplyCount}
 		} else {
-			fmt.Println("Closing the realtime tweets, Thankyou")
 			close(ResponseChannel)
 			break
 		}
