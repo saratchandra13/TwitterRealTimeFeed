@@ -38,4 +38,23 @@ _**Requirement**_ : RealTime Tweets to be shown to user as a streaming API respo
     3. https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
     4. https://github.com/dghubble/go-twitter/twitter
     5. https://github.com/dghubble/oauth1
-        
+
+**Run Server**
+    
+    1. Please take a pull from the master and set the gopath and goroot for this project.
+    2. To Run Server - go run main.go (Will start server at port 8080)
+    3. Curl to get the realtime filtered tweets. 
+    
+    curl -X GET \
+      'http://localhost:8080/search/tweets/?source=%40imVkohli' \
+      -H 'Accept: */*' \
+      -H 'Accept-Encoding: gzip, deflate' \
+      -H 'Cache-Control: no-cache' \
+      -H 'Connection: keep-alive' \
+      -H 'Host: localhost:8080' \
+      -H 'Postman-Token: 57cede03-0927-47f6-9fd7-2261d3dbe5fa,df15bdef-548b-41dd-afe8-9573d0c86b1e,df937f20-bf71-4504-b365-56e47283cc7e' \
+      -H 'User-Agent: PostmanRuntime/7.19.0' \
+      -H 'cache-control: no-cache,no-cache'
+      
+![Alt text](/Account_search.png?raw=true "Tweets On Kohli")
+![Alt text](/HashTag_search.png?raw=true "Tweets On #IndvsBan (Pink ball test match)")             
